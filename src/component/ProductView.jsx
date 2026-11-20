@@ -1,47 +1,58 @@
-import {  useEffect, useState } from "react";
+
+import { useParams, useNavigate } from "react-router-dom";
 import { productList } from "../utility/data.js";
-import ProductDetail from "./ProductDetail.jsx";
 
+function ProductView() {
 
+    const { id } = useParams();
+    const navigate = useNavigate();
 
-function ProductList ({selectcat,onupdate}){
-const product = productList;
+    // Find the product using the ID from the URL
+    const product = productList.find(
+        (item) => item.productId.toString() === id
+    );
 
-const selectCategory=selectcat;
+    // Handle invalid product ID
+    if (!product) {
+        return (
+            <>
+                <h3>Product Not Found</h3>
+                <button
+                    className="btn btn-secondary"
+                    onClick={() => navigate("/products")}
+                >
+                    Back to Products
+                </button>
+            </>
+        );
+    }
 
-const [filteredProduct,setFilteredProduct]= useState([]);
+    return (
+        <>
+            <div className="container mt-4">
+                <h2>Product Details</h2>
 
+                <div className="card p-4 mt-3">
+                    <h4>{product.productName}</h4>
 
+                    <p><strong>Product ID:</strong> {product.productId}</p>
 
-useEffect(()=>{
-    const productnotify=selectCategory?product.filter(f=>f.category==selectCategory):product;
-setFilteredProduct( productnotify);
-onupdate(productnotify.length);
-},[selectCategory])
+                    <p><strong>Product Code:</strong> {product.productCode}</p>
 
-    return(<>
-    <table className="table table-stripped">
-        <thead>
-            <tr>
-                <th>productId</th>
-                <th>productName</th>
-                <th>price</th>
-                <th>productCode</th>
-                <th>category</th>
-                <th>View</th>
-            </tr>
-        </thead>
-        <tbody>
-            {filteredProduct.map((prod)=>(
-               <ProductDetail product={prod} key={prod.productId} />
-            ))}
-        </tbody>
-    </table>
-    
-    
-    </>)
+                    <p><strong>Price:</strong> ₹{product.price}</p>
+
+                    <p><strong>Category:</strong> {product.category}</p>
+
+                    <button
+                        className="btn btn-primary"
+                        onClick={() => navigate("/products")}
+                    >
+                        Back to Products
+                    </button>
+                </div>
+            </div>
+        </>
+    );
 }
 
-export default ProductList;
-
- 
+export default ProductView;
