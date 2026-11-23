@@ -4,8 +4,10 @@ import ProductDetail from "./ProductDetail.jsx";
 
 
 
-function ProductList ({selectcat,onupdate}){
+function ProductList ({selectcat,onupdate,searchText}) {
 const product = productList;
+const search=searchText;
+const [sortOrder, setSortOrder] = useState("high");
 
 const selectCategory=selectcat;
 
@@ -14,29 +16,45 @@ const [filteredProduct,setFilteredProduct]= useState([]);
 
 
 useEffect(()=>{
-    const productnotify=selectCategory?product.filter(f=>f.category==selectCategory):product;
-setFilteredProduct( productnotify);
-onupdate(productnotify.length);
-},[selectCategory])
+    let productnotify=selectCategory?product.filter(f=>f.category==selectCategory):product;
+    productnotify=productnotify.filter(prod=>
+                        prod.productName.toLowerCase().includes(search.toLowerCase()));
+                                
+                                productnotify = [...productnotify].sort(
+                                (a, b) => {
+                                    if(sortOrder === "high"){
+                                        return b.price - a.price;
+                                    }else if(sortOrder === "low"){
+                                        return a.price - b.price;
+                                    }
+                                    else if(sortOrder === "az"){
+                                        return a.productName.localeCompare(b.productName);
+                                    }
+                                    else if(sortOrder === "za"){
+                                    return b.productName.localeCompare(a.productName);
+ } });
+                                setFilteredProduct( productnotify);
+                                onupdate(productnotify.length);
+                },[selectCategory, search,sortOrder]);
 
     return(<>
-    <table className="table table-stripped">
-        <thead>
-            <tr>
-                <th>productId</th>
-                <th>productName</th>
-                <th>price</th>
-                <th>productCode</th>
-                <th>category</th>
-                <th>View</th>
-            </tr>
-        </thead>
-        <tbody>
-            {filteredProduct.map((prod)=>(
-               <ProductDetail product={prod} key={prod.productId} />
-            ))}
-        </tbody>
-    </table>
+    Sort: <select name="" id="" value={sortOrder} onChange={(e) => setSortOrder(e.target.value)}>
+        <option value="">--Select</option>
+        <option value="high">Price: High to Low</option>
+        <option value="low">Price: Low to High</option>
+        <option value="az">Name: A to Z</option>
+        <option value="za">Name: Z to A</option>
+    </select>
+    <div className="container mt-4">
+    <div className="row">
+        {filteredProduct.map((prod) => (
+            <ProductDetail
+                product={prod}
+                key={prod.productId}
+            />
+        ))}
+    </div>
+</div>
     
     
     </>)
@@ -44,4 +62,4 @@ onupdate(productnotify.length);
 
 export default ProductList;
 
- 
+    
